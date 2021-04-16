@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <!-- namespace:該XML文件對應哪個接口 -->
+<mapper namespace="cn.tedu.shop.mapper.CollectMapper">
+
+	
+	
+	<!-- 新增收藏 -->
+	<!-- Integer insert(Collect collect); -->
+	<insert id="insert">
+		INSERT INTO collect(
+			uid,gid,
+			create_user,create_time,
+			modified_user,modified_time
+		)VALUES(
+			#{uid},#{gid},
+			#{createUser},#{createTime},
+			#{modifiedUser},#{modifiedTime}
+		)	
+	</insert>
+	
+	<!-- 刪除收藏數據 -->
+	<!-- Integer delete(Integer cid); -->
+	<delete id="deleteByCoid">
+		DELETE FROM 
+			collect
+		WHERE 
+			coid = #{coid}	
+	</delete>
+	
+				
+	<!-- 根據用戶id及商品id查詢購物車數據 -->
+	<!-- Cart findByUidAndGid(@Param("uid") Integer uid,@Param("gid") Long gid); -->
+		<select id="findByUidAndGid" resultType="cn.tedu.shop.entity.Collect">
+			SELECT
+				coid
+			FROM
+				collect
+			WHERE
+				uid=#{uid} AND gid=#{gid}			
+		</select>
+		
+	<!--查詢指定用戶的購物車訊息  -->
+	<!-- List<CartVO> findByUid(Integer uid); -->	
+		<select id="findByUid" resultType="cn.tedu.shop.vo.CollectVO">
+			SELECT
+				coid,uid,
+				gid,title,
+				price,image
+			FROM
+				collect c
+			LEFT JOIN
+				goods g
+			ON 
+				c.gid = g.id			
+			WHERE
+				uid = #{uid}	
+			ORDER BY
+				c.create_time DESC	
+		</select>
+		
+			
+	<!-- 根據收藏id查詢數據-->
+	<!-- Cart findByCoid(Integer coid); -->
+		<select id="findByCoid" resultType="cn.tedu.shop.entity.Collect">
+			SELECT
+				uid
+			FROM
+				collect
+			WHERE
+				coid=#{coid}
+		</select>
+		
+	
+	
+		
+</mapper>

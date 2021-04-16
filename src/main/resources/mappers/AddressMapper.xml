@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <!-- namespace:該XML文件對應哪個接口 -->
+<mapper namespace="cn.tedu.shop.mapper.AddressMapper">
+	
+	<!-- 新增收貨地址 -->
+	<!-- Integer insert(Address address); -->
+	<insert id="insert">
+		INSERT INTO address(
+			uid ,name,
+			city_code,city_name,
+			area_code,area_name,
+			address,zip,
+			phone,tel,
+			tag,Is_default,
+			create_user,create_time, 
+			modified_user,modified_time
+		)VALUES(
+			#{uid},#{name},
+			#{cityCode},#{cityName},
+			#{areaCode},#{areaName},
+			#{address},#{zip},
+			#{phone},#{tel},
+			#{tag},#{isDefault},
+			#{createUser},#{createTime}, 
+			#{modifiedUser},#{modifiedTime}
+		)
+	</insert>
+	
+	<!-- 根據aid刪除指定收貨地址 -->
+	<!-- Integer deleteByAid(Integer aid); -->
+	<delete id="deleteByAid">
+		DELETE FROM
+			address
+		WHERE
+			aid=#{aid}	
+	</delete>
+	
+	<!-- 將所有收貨地址設非默認 -->
+	<!-- Integer updateNonDefault(Integer uid); -->
+	<update id="updateNonDefault">
+		UPDATE 
+			address
+		SET
+			is_default=0
+		WHERE
+			uid=#{uid}		
+	
+	</update>
+	<!-- 將指定收貨地址設默認 -->
+	<!-- Integer updateDefault(Integer aid); -->
+	<update id="updateDefault">
+		UPDATE 
+			address
+		SET
+			is_default=1,
+			modified_user=#{modifiedUser},
+			modified_time=#{modifiedTime}
+		WHERE
+			aid=#{aid}		
+	</update>
+	
+	
+	
+	<!-- 根據aid查詢收貨地址信息 -->
+	<!-- Address findByAid(Integer aid); -->
+	<select id="findByAid" resultType="cn.tedu.shop.entity.Address">
+		SELECT
+			uid,is_default AS isDefault,
+			name, phone,
+			city_name AS cityName,
+			area_name AS areaName,
+			address
+		FROM
+			address
+		WHERE
+			aid=#{aid}
+	</select>
+	
+	<!-- 查詢最後修改收貨地址 -->
+	<!-- Address findLastModified(Integer uid); -->
+	<select id="findLastModified" resultType="cn.tedu.shop.entity.Address">
+		SELECT
+			aid
+		FROM
+			address
+		WHERE
+			uid=#{uid}
+		ORDER BY
+			modified_time DESC	
+		LIMIT
+			0,1		
+	</select>
+	
+	
+	<!-- 根據用戶id查看該用戶收貨地址列表 -->
+	<!-- List<Address> findByUid(Integer uid); -->
+	<select id="findByUid" resultType="cn.tedu.shop.entity.Address">
+		SELECT
+			aid,name,
+			city_name AS cityName,
+			area_name As areaName,
+			address,tag,
+			phone,is_default AS isDefault
+		FROM
+			address
+		WHERE
+			uid=#{uid}
+		ORDER BY
+			is_default DESC,
+			modified_time DESC		
+	</select>
+	
+	<!-- 統計用戶收貨地址數量 -->
+	<!-- Integer countByUid(Integer uid); -->
+	<select id="countByUid" resultType="java.lang.Integer">
+		SELECT
+		COUNT(*)
+		FROM
+			address
+		WHERE
+			uid=#{uid}	
+	</select>
+		
+</mapper>

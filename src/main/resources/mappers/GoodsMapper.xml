@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <!-- namespace:該XML文件對應哪個接口 -->
+<mapper namespace="cn.tedu.shop.mapper.GoodsMapper">
+	
+	<!-- 獲取熱銷商品列表 -->
+	<!-- List<Goods> findHotList(); -->
+	<select id="findHotList" resultType="cn.tedu.shop.entity.Goods">
+		SELECT
+			id,title,
+			price,image
+		FROM
+			goods
+		WHERE
+			status=1 AND num>100
+		ORDER BY 
+			priority DESC	
+		LIMIT	0,3
+	
+	</select>
+	
+	<!-- 獲取最新商品列表 -->
+	<!-- List<Goods> findNewList(); -->
+	<select id="findNewList" resultType="cn.tedu.shop.entity.Goods">
+		SELECT
+			id,title,
+			price,image
+		FROM
+			goods
+		WHERE
+			status=1 AND num>100
+		ORDER BY 
+			created_time DESC,
+			priority DESC	
+		LIMIT	0,3
+	
+	</select>
+	
+	<!-- 根據商品id獲取商品信息 -->
+	<!-- Goods findById(Integer id); -->
+	<select id="findById" resultType="cn.tedu.shop.entity.Goods">
+		SELECT
+			title,brand,
+			num,price,
+			image,description,
+			status,item_type,
+			sell_point
+		FROM
+			goods
+		WHERE
+			id=#{id}
+	</select>
+	
+	
+	<!-- 根據商品類別獲取商品種類 -->
+	<!-- List<Goods> findByItemType(String itemType); -->
+	<select id="findByItemType" resultType="cn.tedu.shop.entity.Goods">
+		SELECT
+			id,title,brand,
+			num,price,
+			image,description,
+			status,item_type,
+			sell_point
+		FROM
+			goods
+		WHERE
+			item_type=#{itemType}
+		LIMIT 0,4
+			
+	</select>
+	
+	<!-- 根據商品類別獲取商品種類 -->
+	<!-- List<Goods> findByType(String itemType,String page); -->
+	<select id="findByType" resultType="cn.tedu.shop.entity.Goods">
+		SELECT
+			id,title,brand,
+			num,price,
+			image,description,
+			status,item_type,
+			sell_point
+		FROM
+			goods
+		WHERE
+			item_type=#{itemType}
+		ORDER BY id
+		LIMIT 
+			<if test="page ==1">
+				0,15
+			</if>
+			<if test="page ==2">
+				16,30
+			</if>	
+			<if test="page ==3">
+				31,45
+			</if>	
+			<if test="page ==4">
+				46,60
+			</if>	
+	</select>
+	
+	<!-- 搜尋功能 -->
+	<!-- List<Goods> findByTitle(String title); -->
+	<select id="findByTitle" resultType="cn.tedu.shop.entity.Goods">
+		SELECT
+			id,title,brand,
+			num,price,
+			image,description,
+			status,item_type,
+			sell_point
+		FROM
+			goods
+		WHERE
+			title LIKE #{title}
+		ORDER BY id
+		LIMIT 
+			<if test="page ==1">
+				0,15
+			</if>
+			<if test="page ==2">
+				16,30
+			</if>	
+			<if test="page ==3">
+				31,45
+			</if>	
+			<if test="page ==4">
+				46,60
+			</if>		
+	</select>
+	
+	
+	
+
+		
+</mapper>

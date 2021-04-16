@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <!-- namespace:該XML文件對應哪個接口 -->
+<mapper namespace="cn.tedu.shop.mapper.DistrictMapper">
+	
+	<!-- 根據父級代號獲取全國某縣所有鄉鎮市 -->
+	<!-- List<District> findByParent(String parent); -->
+		<select id="findByParent" resultType="cn.tedu.shop.entity.District">
+			SELECT
+				id,parent,
+				code,name
+			FROM
+				district
+			WHERE
+				parent=#{parent}		
+			ORDER BY
+				id
+		</select>
+		
+		<!-- 根據代號獲取縣市名稱 -->
+	<!-- District findByCode(String Code); -->
+		<select id="findByCode" resultType="cn.tedu.shop.entity.District">
+			SELECT
+				id,parent,
+				code,name
+			FROM
+				district
+			WHERE
+				code=#{code}		
+			ORDER BY
+				id
+		</select>
+		
+</mapper>

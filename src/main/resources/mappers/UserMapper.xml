@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  
+  <!-- namespace:該XML文件對應哪個接口 -->
+<mapper namespace="cn.tedu.shop.mapper.UserMapper">
+	
+	<!--用戶註冊資料  -->
+	<!-- Integer insert(User user); -->
+	<insert id="insert" useGeneratedKeys="true" keyProperty="uid">
+		INSERT INTO user(
+			username,password,
+			salt,gender,
+			phone,address,
+			zip,email,
+			avatar,is_delete,
+			create_user,create_time, 
+			modified_user,modified_time
+		)VALUES(
+			#{username},#{password},
+			#{salt},#{gender},
+			#{phone},#{address},
+			#{zip},#{email},
+			#{avatar},#{isDelete},
+			#{createUser},#{createTime}, 
+			#{modifiedUser},#{modifiedTime}
+		)
+		
+	</insert>
+	
+	<!-- 更改密碼 -->
+	<!-- Integer updatePassword(
+			@Param("uid")Integer uid,@Param("password")String password,
+			@Param("modifiedUser")String modifiedUser,@Param("modifiedTim")Date modifiedTime); -->
+	<update id="updatePassword">
+		UPDATE
+			user
+		SET
+			password=#{password},
+			modified_user=#{modifiedUser},
+			modified_time=#{modifiedTime}	
+		WHERE
+			uid=#{uid}	
+	</update>
+	
+	<!-- 修改用戶資料 -->
+	<!-- Integer updateInfo(@Param("uid")Integer uid,@Param("email")String email,@Param("phone")String phone,
+			@Param("address")String address,@Param("zip")String zip,@Param("gender")Integer gender,
+			@Param("modifiedUser")String modifiedUser,@Param("modifiedTime")Date modifiedTime);-->
+	<update id="updateInfo">
+		UPDATE
+			user
+		SET
+			<if test="email!=null">
+				email=#{email},
+			</if>
+			<if test="phone!=null">
+				phone=#{phone},
+			</if>
+			<if test="address!=null">
+				address=#{address},
+			</if>
+			<if test="zip!=null">
+				zip=#{zip},
+			</if>
+			<if test="gender!=null">
+				gender=#{gender},
+			</if>
+			modified_user=#{modifiedUser},
+			modified_time=#{modifiedTime}	
+		WHERE
+			uid=#{uid}	
+	</update>
+	
+	<!-- 修改頭像 -->
+	<!-- Integer updateAvatar(@Param("uid")Integer uid,@Param("avatar")String avatar,
+			@Param("modifiedUser")String modifiedUser,@Param("modifiedTime")Date modifiedTime); -->
+	<update id="updateAvatar">
+		UPDATE
+			user
+		SET
+			avatar=#{avatar},
+			modified_user=#{modifiedUser},
+			modified_time=#{modifiedTime}	
+		WHERE
+			uid=#{uid}	
+	</update>
+	
+	
+	<!-- 根據uid查詢用戶訊息 -->
+	<!-- User findByUid(Integer uid); -->
+	<select id="findByUid" resultType="cn.tedu.shop.entity.User">
+		SELECT 
+			username,password,
+			salt,email,
+			address,zip,
+			gender,phone,
+			is_delete AS isDelete
+		FROM 
+			user
+		WHERE 
+			uid=#{uid}
+	</select>
+	
+	<!-- 根據用戶名查詢用戶資料 -->
+	<!-- Integer findByUsername(String username); -->
+	<select id="findByUsername" resultType="cn.tedu.shop.entity.User">
+		SELECT 
+			uid,username,
+			password,salt,
+			is_delete AS isDelete
+		FROM 
+			user
+		WHERE 
+			username=#{username}
+	</select>
+	
+</mapper>
