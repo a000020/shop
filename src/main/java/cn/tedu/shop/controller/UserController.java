@@ -45,7 +45,7 @@ public class UserController extends BaseController {
 	 */
 	public static final List<String> AVATAR_CONTENT_TYPES = new ArrayList<String>();
 	
-	public static final String AVATAR_DIR = "upload";
+	public static final String AVATAR_DIR = "userdata";
 	/**
 	 * 初始化上傳時允許的頭像文件類型
 	 */
@@ -107,8 +107,10 @@ public class UserController extends BaseController {
 			throw new FileSizeException("上傳文件容量過大");
 		}
 		//檢查文件類型
-		if(!AVATAR_CONTENT_TYPES.contains(file.getContentType())){
-			throw new FileTypeException("上傳文件類型不正確");
+		String contentType = file.getContentType();
+				
+		if(!AVATAR_CONTENT_TYPES.contains(contentType)){
+			throw new FileTypeException("上傳失敗!文件類型不符!");
 		}
 		//確定文件夾:File dir
 		String dirPath = request.getServletContext().getRealPath(AVATAR_DIR);

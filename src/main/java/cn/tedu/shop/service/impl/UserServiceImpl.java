@@ -11,6 +11,8 @@ import org.springframework.util.DigestUtils;
 import cn.tedu.shop.entity.User;
 import cn.tedu.shop.mapper.UserMapper;
 import cn.tedu.shop.service.IUserService;
+import cn.tedu.shop.service.ex.EmailNotMatchException;
+import cn.tedu.shop.service.ex.EmptyException;
 import cn.tedu.shop.service.ex.InsertException;
 import cn.tedu.shop.service.ex.PasswordNotMatchException;
 import cn.tedu.shop.service.ex.UpdateException;
@@ -30,7 +32,10 @@ public class UserServiceImpl implements IUserService {
 		User result = userMapper.findByUsername(username);
 		// 判断查询结果是否不为null（查询结果是存在的）
 		if(result!=null){
-			throw new UsernameDuplicateException("註冊失敗!嘗試註冊的用戶名("+username+")被占用");
+			throw new UsernameDuplicateException("註冊失敗!嘗試註冊的帳號("+username+")被占用");
+		}
+		if(user.getUsername().equals("")){
+			throw new EmptyException("註冊失敗!帳號不能為空!");
 		}
 		System.err.println("reg()>password="+user.getPassword());
 		//得到鹽值
@@ -40,9 +45,24 @@ public class UserServiceImpl implements IUserService {
 		//將加密後的密碼和鹽值封裝到user中
 		user.setSalt(salt);
 		user.setPassword(md5Password);
-		
 		System.err.println("reg()>salt="+salt);
 		System.err.println("reg()>md5Password="+md5Password);
+		
+		String email = user.getEmail();
+		String regex = "[a-zA-Z0-9_]+@[a-zA-Z0-9]+(\\.[a-zA-Z]+)+";
+		boolean check = email.matches(regex);
+		if(!check){
+			throw new EmailNotMatchException("註冊失敗!信箱類型錯誤!");
+		}
+		String address = user.getAddress();
+		if(address.equals("")){
+			throw new EmptyException("註冊失敗!地址不能為空!");
+		}
+		String phone = user.getPhone();
+		if(phone.equals("")){
+			throw new EmptyException("註冊失敗!手機不能為空!");
+		}
+		
 		// 将user中的isDelete设置为0
 		user.setIsDelete(0);
 		// 封装user中的4个日志属性
@@ -65,14 +85,17 @@ public class UserServiceImpl implements IUserService {
 			//拋出:UserNotFoundException
 			throw new UserNotFoundException("登入失敗!帳號不存在!");
 		}
-		
+		if(username.equals("")){
+			throw new EmptyException("登入失敗!帳號不能為空");
+		}
 		//判斷查詢結果的isDelete是否為1
 		if(result.getIsDelete()==1){
 			//拋出:UserNotFoundException
 			throw new UserNotFoundException("登入失敗!帳號不存在!");
 		}
-		
-		
+		if(password.equals("")){
+			throw new EmptyException("登入失敗!密碼不能為空");
+		}
 		//從查詢結果中獲取鹽值
 		String salt =result.getSalt();
 		//根據參數password和鹽值一起進行加密,得到加密後的密碼
@@ -126,6 +149,23 @@ public class UserServiceImpl implements IUserService {
 	public void changeInfo(User user) throws UserNotFoundException, UpdateException {
 		//根據參數uid查詢用戶資料
 		findByUid(user.getUid());
+		String email = user.getEmail();
+		String regex = "[a-zA-Z0-9_]+@[a-zA-Z0-9]+(\\.[a-zA-Z]+)+";
+		boolean check = email.matches(regex);
+		if(check){
+			user.setEmail(email);
+		}else{
+			throw new EmailNotMatchException("修改失敗!信箱類型錯誤!");
+		}
+		String address = user.getAddress();
+		if(address.equals("")){
+			throw new EmptyException("修改失敗!地址不能為空!");
+		}
+		user.setAddress(address);
+		String phone = user.getPhone();
+		if(phone.equals("")){
+			throw new EmptyException("修改失敗!手機不能為空!");
+		}
 		
 		
 		//創建當前時間對象
@@ -143,11 +183,26 @@ public class UserServiceImpl implements IUserService {
 			throws UpdateException, UserNotFoundException {
 		// 根据参数uid查询用户数据
 		User result = findByUid(uid);
-		System.err.println("uid is:"+uid);
-		System.err.println("result is:"+result);
+		if(result==null){
+			//拋出:UserNotFoundException
+			throw new UserNotFoundException("修改頭像失敗!用戶名不存在!");
+		}
+				
+		//判斷查詢結果的isDelete為1
+		if(result.getIsDelete()==1){
+			//拋出:UserNotFoundException
+			throw new UserNotFoundException("修改頭像失敗!用戶名不存在!");
+		}
+		
 		
 		Date now = new Date();
-		updateAvatar(uid, avatar, username, now);
+		//執行更新密碼,並獲取返回的受影響的行數
+		Integer rows = userMapper.updateAvatar(uid, avatar, username, now);
+		//判斷受影響的行數是否不為1
+		if(rows!=1){
+			//拋出:UpdateException
+			throw new UpdateException("修改頭像失敗!");
+		}
 	}
 
 	
@@ -200,13 +255,7 @@ public class UserServiceImpl implements IUserService {
 			throw new UpdateException("修改資料發生未知錯誤");
 		}
 	}
-	private void updateAvatar(Integer uid,String avatar,
-		String modifiedUser,Date modifiedTime){
-		Integer rows =userMapper.updateAvatar(uid, avatar, modifiedUser, modifiedTime);
-		if(rows!=1){
-			throw new UpdateException("修改資料發生未知錯誤");
-		}
-	}
+	
 	
 	
 	/**
@@ -229,6 +278,9 @@ public class UserServiceImpl implements IUserService {
 	
 		
 	private String getMd5Password(String password,String salt){
+		if(password.equals("")){
+			throw new EmptyException("註冊失敗!密碼不能為空!");
+		}
 		//規則:對password+salt進行三重加密
 		String str = password+salt;
 		for(int i=0;i<3;i++){

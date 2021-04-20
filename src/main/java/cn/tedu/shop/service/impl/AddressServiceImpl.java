@@ -17,6 +17,7 @@ import cn.tedu.shop.service.ex.AccessDeniedException;
 import cn.tedu.shop.service.ex.AddressCountLimitException;
 import cn.tedu.shop.service.ex.AddressNotFoundException;
 import cn.tedu.shop.service.ex.DeleteException;
+import cn.tedu.shop.service.ex.EmptyException;
 import cn.tedu.shop.service.ex.InsertException;
 import cn.tedu.shop.service.ex.UpdateException;
 
@@ -35,7 +36,23 @@ public class AddressServiceImpl implements IAddressService {
 			throws InsertException, AddressCountLimitException {
 		//判斷收貨地址數量
 		Integer count = countByUid(uid);
-		
+		String name =address.getName();
+		if(name.equals("")){
+			throw new EmptyException("收貨人不能為空!");
+		}
+		String phone =address.getPhone();
+		if(phone.equals("")){
+			throw new EmptyException("電話不能為空!");
+		}
+		if(address.getAddress().equals("")){
+			throw new EmptyException("地址欄不能為空!");
+		}
+		if(address.getZip().equals("")){
+			throw new EmptyException("郵遞區號不能為空!");
+		}
+		if(address.getTag().equals("")){
+			throw new EmptyException("地址類型不能為空!");
+		}
 		//補全uid
 		address.setUid(uid);
 		//補全數據:city_name,area_name
@@ -43,11 +60,13 @@ public class AddressServiceImpl implements IAddressService {
 		District area = districtService.getByCode(address.getAreaCode());
 		if(city==null){
 			address.setCityName(null);
+			throw new EmptyException("請選擇縣市名稱!");
 		}else{
 			address.setCityName(city.getName());
 		}
 		if(area==null){
 			address.setAreaName(null);
+			throw new EmptyException("請選擇地區名稱!");
 		}else{
 			address.setAreaName(area.getName());
 		}
